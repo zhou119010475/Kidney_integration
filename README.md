@@ -11,5 +11,5 @@ https://zhou119010475.github.io/Kidney_integration/
 
 Hosted via GitHub Pages (raw links in this repo won't render interactively — GitHub serves `.html` files as plain text):
 
-- [HCKAsc_3DUmap](https://zhou119010475.github.io/Kidney_integration/HCKAsc_3DUmap.html) — single-cell 3D UMAP
-- [HCKAsn_3DUmap](https://zhou119010475.github.io/Kidney_integration/HCKAsn_3DUmap.html) — single-nucleus 3D UMAP
+- [HKCAsc_3DUmap](https://zhou119010475.github.io/Kidney_integration/HKCAsc_3DUmap.html) — single-cell 3D UMAP
+- [HKCAsn_3DUmap](https://zhou119010475.github.io/Kidney_integration/HKCAsn_3DUmap.html) — single-nucleus 3D UMAP
