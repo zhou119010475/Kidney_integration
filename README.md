@@ -1,6 +1,6 @@
 # Kidney_Atlas
 
-This repository contains the integration and analysis notebooks and results for the Human Cell Atlas Kidney (HCKA).
+This repository contains the integration and analysis notebooks and results for the Human Kidney Cell Atlas (HKCA).
 
 ## Data portal
 
