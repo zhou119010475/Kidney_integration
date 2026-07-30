@@ -504,41 +504,11 @@
         <h2>3D UMAP</h2>
       </div>
 
-      <div class="cards">
+      <p class="lede">
+        Rotate, zoom and hover the integrated embeddings, coloured by harmonized cell state.
+      </p>
 
-        <a class="card" href="HKCAsc_3DUmap.html"
-           data-viewer="HKCAsc_3DUmap.html" data-label="single cell" data-size="&asymp;11 MB">
-          <div class="card-top">
-            <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2.8 21 7.4v9.2L12 21.2 3 16.6V7.4Z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.2"/>
-              </svg>
-            </span>
-            <span class="badge live">Interactive</span>
-          </div>
-          <h3>Single cell</h3>
-          <p>Rotate, zoom, and hover the single-cell embedding coloured by harmonized cell state.</p>
-          <span class="go">View below</span>
-        </a>
-
-        <a class="card" href="HKCAsn_3DUmap.html"
-           data-viewer="HKCAsn_3DUmap.html" data-label="single nucleus" data-size="&asymp;4 MB">
-          <div class="card-top">
-            <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2.8 21 7.4v9.2L12 21.2 3 16.6V7.4Z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.2"/>
-              </svg>
-            </span>
-            <span class="badge live">Interactive</span>
-          </div>
-          <h3>Single nucleus</h3>
-          <p>Rotate, zoom, and hover the single-nucleus embedding coloured by harmonized cell state.</p>
-          <span class="go">View below</span>
-        </a>
-
-      </div>
-
-      <div class="viewer" id="viewer">
+      <div class="viewer">
         <div class="viewer-bar">
           <div class="viewer-tabs" role="tablist" aria-label="3D UMAP embedding">
             <button type="button" class="vtab" role="tab" aria-selected="true"
@@ -618,7 +588,6 @@
 
 <script>
 (function () {
-  var panel  = document.getElementById("viewer");
   var status = document.getElementById("viewer-status");
   var open   = document.getElementById("viewer-open");
   var tabs   = Array.prototype.slice.call(document.querySelectorAll(".vtab"));
@@ -665,7 +634,7 @@
     });
   });
 
-  function activate(src, scroll) {
+  function activate(src) {
     active = src;
     open.href = src;
     tabs.forEach(function (t) {
@@ -686,23 +655,13 @@
         '<span class="spin">' + info.size + " &mdash; the plot appears once the download finishes.</span>";
       status.hidden = false;
     }
-    if (scroll) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  function bind(el, scroll) {
-    el.addEventListener("click", function (event) {
-      // Let modified clicks fall through so the export can still open in a new tab.
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-      event.preventDefault();
-      activate(el.dataset.viewer, scroll);
-    });
-  }
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () { activate(tab.dataset.viewer); });
+  });
 
-  // Cards sit above the viewer, so they bring it into view; tabs are already in it.
-  document.querySelectorAll(".card[data-viewer]").forEach(function (card) { bind(card, true); });
-  tabs.forEach(function (tab) { bind(tab, false); });
-
-  activate(frames[0].dataset.src, false);
+  activate(frames[0].dataset.src);
 })();
 </script>
 
