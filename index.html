@@ -308,19 +308,30 @@
 
   .viewer-frame {
     position: relative;
+    height: min(74vh, 700px);
     background: var(--paper);
   }
 
-  .viewer-frame iframe {
-    display: block;
+  .viewer-iframe {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: min(74vh, 700px);
+    height: 100%;
     border: 0;
+    z-index: 1;
+  }
+
+  /* Hidden with visibility, not display, so Plotly still measures the frame
+     and the inactive plot is ready the moment its tab is selected. */
+  .viewer-iframe[aria-hidden="true"] {
+    visibility: hidden;
+    z-index: 0;
   }
 
   .viewer-status {
     position: absolute;
     inset: 0;
+    z-index: 2;
     display: grid;
     place-items: center;
     margin: 0;
@@ -507,7 +518,7 @@
           </div>
           <h3>Single cell</h3>
           <p>Rotate, zoom, and hover the single-cell embedding coloured by harmonized cell state.</p>
-          <span class="go">Load below</span>
+          <span class="go">View below</span>
         </a>
 
         <a class="card" href="HKCAsn_3DUmap.html"
@@ -522,16 +533,15 @@
           </div>
           <h3>Single nucleus</h3>
           <p>Rotate, zoom, and hover the single-nucleus embedding coloured by harmonized cell state.</p>
-          <span class="go">Load below</span>
+          <span class="go">View below</span>
         </a>
 
       </div>
 
-      <!-- Populated on demand: the exports are 19 MB / 8.7 MB, too heavy to load up front. -->
-      <div class="viewer" id="viewer" hidden>
+      <div class="viewer" id="viewer">
         <div class="viewer-bar">
           <div class="viewer-tabs" role="tablist" aria-label="3D UMAP embedding">
-            <button type="button" class="vtab" role="tab" aria-selected="false"
+            <button type="button" class="vtab" role="tab" aria-selected="true"
                     data-viewer="HKCAsc_3DUmap.html" data-label="single cell" data-size="&asymp;11 MB">
               Single cell
             </button>
@@ -544,9 +554,14 @@
             Open in a new tab &nearr;
           </a>
         </div>
+        <!-- src is assigned by script: the visible embedding first, the other one
+             once it finishes, so switching tabs never waits on a download. -->
         <div class="viewer-frame">
           <p class="viewer-status" id="viewer-status" role="status"></p>
-          <iframe id="viewer-frame" title="Interactive 3D UMAP" allowfullscreen></iframe>
+          <iframe class="viewer-iframe" data-src="HKCAsc_3DUmap.html"
+                  title="Interactive 3D UMAP, single cell" allowfullscreen></iframe>
+          <iframe class="viewer-iframe" data-src="HKCAsn_3DUmap.html" aria-hidden="true"
+                  title="Interactive 3D UMAP, single nucleus" allowfullscreen></iframe>
         </div>
       </div>
     </div>
@@ -604,57 +619,90 @@
 <script>
 (function () {
   var panel  = document.getElementById("viewer");
-  var frame  = document.getElementById("viewer-frame");
   var status = document.getElementById("viewer-status");
   var open   = document.getElementById("viewer-open");
   var tabs   = Array.prototype.slice.call(document.querySelectorAll(".vtab"));
-  var loaded = null;
+  var frames = Array.prototype.slice.call(document.querySelectorAll(".viewer-iframe"));
+  var active = null;
 
-  frame.addEventListener("load", function () {
-    if (!frame.getAttribute("src")) return;
-    status.hidden = true;
-    // The exports give their plot height:100% but never size body, so it would
-    // collapse to Plotly's 450px default inside the frame.
+  function frameFor(src) {
+    return frames.filter(function (f) { return f.dataset.src === src; })[0];
+  }
+
+  function describe(src) {
+    return tabs.filter(function (t) { return t.dataset.viewer === src; })[0].dataset;
+  }
+
+  function fetchInto(frame) {
+    if (!frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src);
+  }
+
+  // The exports give their plot height:100% but never size body, so it would
+  // collapse to Plotly's 450px default inside the frame.
+  function fit(frame) {
     try {
       var doc = frame.contentDocument;
-      var css = doc.createElement("style");
-      css.textContent = "html,body{height:100%;margin:0}.plotly-graph-div{height:100%!important}";
-      doc.head.appendChild(css);
+      if (!doc.getElementById("hkca-fit")) {
+        var css = doc.createElement("style");
+        css.id = "hkca-fit";
+        css.textContent = "html,body{height:100%;margin:0}.plotly-graph-div{height:100%!important}";
+        doc.head.appendChild(css);
+      }
       var plot = doc.querySelector(".plotly-graph-div");
       if (plot && frame.contentWindow.Plotly) frame.contentWindow.Plotly.Plots.resize(plot);
     } catch (err) {
       /* leave the export untouched if it cannot be reached */
     }
+  }
+
+  frames.forEach(function (frame) {
+    frame.addEventListener("load", function () {
+      if (!frame.getAttribute("src")) return;
+      frame.dataset.ready = "true";
+      fit(frame);
+      if (frame.dataset.src === active) status.hidden = true;
+      frames.forEach(fetchInto);
+    });
   });
 
-  function show(src, label, size) {
-    panel.hidden = false;
+  function activate(src, scroll) {
+    active = src;
     open.href = src;
     tabs.forEach(function (t) {
       t.setAttribute("aria-selected", String(t.dataset.viewer === src));
     });
+    frames.forEach(function (f) {
+      f.setAttribute("aria-hidden", String(f.dataset.src !== src));
+    });
 
-    if (loaded !== src) {
-      status.innerHTML = "Loading the " + label + " embedding &hellip;" +
-        '<span class="spin">' + size + " &mdash; the plot appears once the download finishes.</span>";
+    var frame = frameFor(src);
+    fetchInto(frame);
+    if (frame.dataset.ready === "true") {
+      status.hidden = true;
+      fit(frame);
+    } else {
+      var info = describe(src);
+      status.innerHTML = "Loading the " + info.label + " embedding &hellip;" +
+        '<span class="spin">' + info.size + " &mdash; the plot appears once the download finishes.</span>";
       status.hidden = false;
-      loaded = src;
-      frame.src = src;
     }
-    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (scroll) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  function bind(el) {
+  function bind(el, scroll) {
     el.addEventListener("click", function (event) {
       // Let modified clicks fall through so the export can still open in a new tab.
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
       event.preventDefault();
-      show(el.dataset.viewer, el.dataset.label, el.dataset.size);
+      activate(el.dataset.viewer, scroll);
     });
   }
 
-  document.querySelectorAll(".card[data-viewer]").forEach(bind);
-  tabs.forEach(bind);
+  // Cards sit above the viewer, so they bring it into view; tabs are already in it.
+  document.querySelectorAll(".card[data-viewer]").forEach(function (card) { bind(card, true); });
+  tabs.forEach(function (tab) { bind(tab, false); });
+
+  activate(frames[0].dataset.src, false);
 })();
 </script>
 
