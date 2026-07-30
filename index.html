@@ -246,6 +246,90 @@
 
   .card.pending .go { color: var(--ink-faint); }
 
+  /* ---------- inline 3D UMAP viewer ---------- */
+
+  .viewer {
+    margin-top: 26px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    background: var(--paper-warm);
+  }
+
+  .viewer-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .viewer-tabs { display: flex; }
+
+  .vtab {
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+
+  .vtab + .vtab { border-left: 0; }
+
+  .vtab:hover { color: var(--accent-deep); }
+
+  .vtab[aria-selected="true"] {
+    background: var(--accent-deep);
+    border-color: var(--accent-deep);
+    color: #fff;
+  }
+
+  .viewer-open {
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .viewer-open:hover { text-decoration: underline; }
+
+  .viewer-frame {
+    position: relative;
+    background: var(--paper);
+  }
+
+  .viewer-frame iframe {
+    display: block;
+    width: 100%;
+    height: min(74vh, 700px);
+    border: 0;
+  }
+
+  .viewer-status {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 0 24px;
+    text-align: center;
+    font-size: .92rem;
+    color: var(--ink-soft);
+    background: var(--paper);
+  }
+
+  .viewer-status[hidden] { display: none; }
+
+  .viewer-status .spin {
+    display: block;
+    font-size: .82rem;
+    color: var(--ink-faint);
+    margin-top: 6px;
+  }
+
   /* ---------- citation ---------- */
 
   .cite {
@@ -409,7 +493,8 @@
           <span class="go">Download <code>.h5ad</code></span>
         </a>
 
-        <a class="card" href="HKCAsc_3DUmap.html">
+        <a class="card" href="HKCAsc_3DUmap.html"
+           data-viewer="HKCAsc_3DUmap.html" data-label="single cell" data-size="&asymp;11 MB">
           <div class="card-top">
             <span class="icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -420,10 +505,11 @@
           </div>
           <h3>3D UMAP &mdash; single cell</h3>
           <p>Rotate, zoom, and hover the single-cell embedding coloured by harmonized cell state.</p>
-          <span class="go">Open viewer</span>
+          <span class="go">Load below (&asymp;11 MB)</span>
         </a>
 
-        <a class="card" href="HKCAsn_3DUmap.html">
+        <a class="card" href="HKCAsn_3DUmap.html"
+           data-viewer="HKCAsn_3DUmap.html" data-label="single nucleus" data-size="&asymp;4 MB">
           <div class="card-top">
             <span class="icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -434,9 +520,32 @@
           </div>
           <h3>3D UMAP &mdash; single nucleus</h3>
           <p>Rotate, zoom, and hover the single-nucleus embedding coloured by harmonized cell state.</p>
-          <span class="go">Open viewer</span>
+          <span class="go">Load below (&asymp;4 MB)</span>
         </a>
 
+      </div>
+
+      <!-- Populated on demand: the exports are 19 MB / 8.7 MB, too heavy to load up front. -->
+      <div class="viewer" id="viewer" hidden>
+        <div class="viewer-bar">
+          <div class="viewer-tabs" role="tablist" aria-label="3D UMAP embedding">
+            <button type="button" class="vtab" role="tab" aria-selected="false"
+                    data-viewer="HKCAsc_3DUmap.html" data-label="single cell" data-size="&asymp;11 MB">
+              Single cell
+            </button>
+            <button type="button" class="vtab" role="tab" aria-selected="false"
+                    data-viewer="HKCAsn_3DUmap.html" data-label="single nucleus" data-size="&asymp;4 MB">
+              Single nucleus
+            </button>
+          </div>
+          <a class="viewer-open" id="viewer-open" href="HKCAsc_3DUmap.html" target="_blank" rel="noopener">
+            Open in a new tab &nearr;
+          </a>
+        </div>
+        <div class="viewer-frame">
+          <p class="viewer-status" id="viewer-status" role="status"></p>
+          <iframe id="viewer-frame" title="Interactive 3D UMAP" allowfullscreen></iframe>
+        </div>
       </div>
     </div>
   </section>
@@ -459,6 +568,63 @@
   <span>Human Kidney Cell Atlas (HKCA) &middot; part of the Human Cell Atlas</span>
   <span><a href="https://github.com/zhou119010475/Kidney_integration">Analysis code on GitHub</a></span>
 </footer>
+
+<script>
+(function () {
+  var panel  = document.getElementById("viewer");
+  var frame  = document.getElementById("viewer-frame");
+  var status = document.getElementById("viewer-status");
+  var open   = document.getElementById("viewer-open");
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll(".vtab"));
+  var loaded = null;
+
+  frame.addEventListener("load", function () {
+    if (!frame.getAttribute("src")) return;
+    status.hidden = true;
+    // The exports give their plot height:100% but never size body, so it would
+    // collapse to Plotly's 450px default inside the frame.
+    try {
+      var doc = frame.contentDocument;
+      var css = doc.createElement("style");
+      css.textContent = "html,body{height:100%;margin:0}.plotly-graph-div{height:100%!important}";
+      doc.head.appendChild(css);
+      var plot = doc.querySelector(".plotly-graph-div");
+      if (plot && frame.contentWindow.Plotly) frame.contentWindow.Plotly.Plots.resize(plot);
+    } catch (err) {
+      /* leave the export untouched if it cannot be reached */
+    }
+  });
+
+  function show(src, label, size) {
+    panel.hidden = false;
+    open.href = src;
+    tabs.forEach(function (t) {
+      t.setAttribute("aria-selected", String(t.dataset.viewer === src));
+    });
+
+    if (loaded !== src) {
+      status.innerHTML = "Loading the " + label + " embedding &hellip;" +
+        '<span class="spin">' + size + " &mdash; the plot appears once the download finishes.</span>";
+      status.hidden = false;
+      loaded = src;
+      frame.src = src;
+    }
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function bind(el) {
+    el.addEventListener("click", function (event) {
+      // Let modified clicks fall through so the export can still open in a new tab.
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+      event.preventDefault();
+      show(el.dataset.viewer, el.dataset.label, el.dataset.size);
+    });
+  }
+
+  document.querySelectorAll(".card[data-viewer]").forEach(bind);
+  tabs.forEach(bind);
+})();
+</script>
 
 </body>
 </html>
