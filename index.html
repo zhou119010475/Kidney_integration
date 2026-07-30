@@ -7,7 +7,7 @@
 <meta name="description" content="Human Kidney Cell Atlas (HKCA) — an integrated single-cell and single-nucleus reference atlas of the human kidney.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #14201f;
@@ -17,9 +17,11 @@
     --paper: #ffffff;
     --paper-warm: #f6f8f7;
     --accent: #0f6b60;
-    --accent-soft: #e3f1ee;
+    --accent-soft: #eaf2f0;
     --accent-deep: #0a4f47;
     --max: 1080px;
+    --sans: "Source Sans 3", "Helvetica Neue", Helvetica, Arial,
+            "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
   }
 
   * { box-sizing: border-box; }
@@ -28,10 +30,10 @@
 
   body {
     margin: 0;
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--sans);
     color: var(--ink);
     background: var(--paper);
-    line-height: 1.65;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -48,63 +50,50 @@
   header.hero {
     position: relative;
     overflow: hidden;
-    background:
-      radial-gradient(900px 420px at 12% -10%, #128074 0%, rgba(18,128,116,0) 62%),
-      radial-gradient(760px 420px at 88% 0%, #1b5f7a 0%, rgba(27,95,122,0) 60%),
-      linear-gradient(160deg, #0a3f3a 0%, #0d2b33 100%);
+    background-color: #0d3a38;
+    background-image: url("figures/Background.png");
+    background-size: cover;
+    background-position: center right;
     color: #fff;
-    padding: 76px 0 64px;
+    padding: 84px 0 66px;
+    border-bottom: 3px solid var(--accent-deep);
   }
 
-  header.hero::after {
+  /* Scrim keeps the title legible over the illustration without hiding it. */
+  header.hero::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image:
-      radial-gradient(circle at 20% 30%, rgba(255,255,255,.16) 0 1.4px, transparent 1.6px),
-      radial-gradient(circle at 68% 62%, rgba(255,255,255,.12) 0 1.2px, transparent 1.4px),
-      radial-gradient(circle at 42% 78%, rgba(255,255,255,.10) 0 1.6px, transparent 1.8px);
-    background-size: 190px 190px, 130px 130px, 240px 240px;
-    opacity: .8;
-    pointer-events: none;
+    background: linear-gradient(100deg,
+      rgba(8, 43, 41, .95) 0%,
+      rgba(8, 43, 41, .88) 38%,
+      rgba(9, 50, 48, .70) 68%,
+      rgba(9, 50, 48, .55) 100%);
   }
 
   .hero-inner { position: relative; z-index: 1; }
 
   .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    font-size: .74rem;
+    font-size: .76rem;
     font-weight: 600;
-    letter-spacing: .13em;
+    letter-spacing: .18em;
     text-transform: uppercase;
-    color: #a8ded6;
-    border: 1px solid rgba(168, 222, 214, .35);
-    border-radius: 999px;
-    padding: 6px 14px;
-    margin-bottom: 26px;
-  }
-
-  .eyebrow span.dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #5fd3c0;
-  }
-
-  h1 {
-    font-family: "Newsreader", Georgia, serif;
-    font-weight: 600;
-    font-size: clamp(2.5rem, 6.2vw, 4.1rem);
-    line-height: 1.06;
-    letter-spacing: -.02em;
+    color: #b6d6d1;
     margin: 0 0 18px;
   }
 
+  h1 {
+    font-weight: 700;
+    font-size: clamp(2.1rem, 5vw, 3.35rem);
+    line-height: 1.14;
+    letter-spacing: -.015em;
+    margin: 0 0 20px;
+  }
+
   .tagline {
-    font-size: clamp(1.02rem, 2.1vw, 1.2rem);
-    color: #cfe6e2;
-    max-width: 60ch;
+    font-size: clamp(1rem, 2vw, 1.14rem);
+    color: #dbeae7;
+    max-width: 62ch;
     margin: 0 0 34px;
   }
 
@@ -140,40 +129,29 @@
   section + section { border-top: 1px solid var(--line); }
 
   .section-head {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    margin-bottom: 26px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
   }
 
   h2 {
-    font-family: "Newsreader", Georgia, serif;
-    font-weight: 600;
-    font-size: 1.95rem;
-    letter-spacing: -.01em;
+    font-weight: 700;
+    font-size: 1.42rem;
+    letter-spacing: .005em;
     margin: 0;
   }
 
-  .section-note {
-    font-size: .86rem;
-    color: var(--ink-faint);
-  }
-
   .abstract {
-    font-family: "Newsreader", Georgia, serif;
-    font-size: 1.14rem;
-    line-height: 1.78;
-    color: #263835;
-    max-width: 74ch;
+    font-size: 1.02rem;
+    line-height: 1.72;
+    color: #26332f;
+    max-width: 76ch;
+    text-align: justify;
   }
 
-  .abstract p { margin: 0 0 1.05em; }
+  .abstract p { margin: 0 0 1em; }
 
   .abstract p:last-child { margin-bottom: 0; }
-
-  .placeholder-text {
-    background: linear-gradient(transparent 62%, #fdf1cf 62%);
-  }
 
   /* ---------- resource cards ---------- */
 
@@ -188,20 +166,20 @@
     flex-direction: column;
     gap: 12px;
     position: relative;
-    padding: 24px 24px 22px;
+    padding: 22px 22px 20px;
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-top: 3px solid #c3d2ce;
     background: var(--paper);
     text-decoration: none;
     color: inherit;
-    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    transition: border-color .15s ease, background-color .15s ease;
   }
 
   .card:hover,
   .card:focus-visible {
     border-color: var(--accent);
-    box-shadow: 0 12px 28px -18px rgba(10, 79, 71, .55);
-    transform: translateY(-2px);
+    border-top-color: var(--accent);
+    background: #fbfdfc;
     outline: none;
   }
 
@@ -215,8 +193,8 @@
   .icon {
     display: grid;
     place-items: center;
-    width: 40px; height: 40px;
-    border-radius: 10px;
+    width: 38px; height: 38px;
+    border: 1px solid #cfdcd8;
     background: var(--accent-soft);
     color: var(--accent-deep);
     flex: none;
@@ -225,24 +203,23 @@
   .icon svg { width: 20px; height: 20px; }
 
   .badge {
-    font-size: .67rem;
+    font-size: .66rem;
     font-weight: 600;
-    letter-spacing: .09em;
+    letter-spacing: .1em;
     text-transform: uppercase;
-    padding: 4px 9px;
-    border-radius: 999px;
+    padding: 3px 8px;
+    border: 1px solid;
     white-space: nowrap;
   }
 
-  .badge.live { background: var(--accent-soft); color: var(--accent-deep); }
+  .badge.live { border-color: #b8d2cc; background: var(--accent-soft); color: var(--accent-deep); }
 
-  .badge.soon { background: #f4f0e2; color: #8a7433; }
+  .badge.soon { border-color: #ded6bd; background: #f5f2e8; color: #7d6a2e; }
 
   .card h3 {
-    font-size: 1.06rem;
-    font-weight: 600;
+    font-size: 1.04rem;
+    font-weight: 700;
     margin: 0;
-    letter-spacing: -.005em;
   }
 
   .card p {
@@ -261,25 +238,21 @@
 
   .card .go::after {
     content: " \2192";
-    transition: margin-left .18s ease;
-    display: inline-block;
   }
 
-  .card:hover .go::after { margin-left: 4px; }
+  .card.pending { background: var(--paper-warm); border-top-color: #d8d0b8; }
 
-  .card.pending { background: var(--paper-warm); }
-
-  .card.pending .icon { background: #ece8da; color: #7d6a2e; }
+  .card.pending .icon { background: #f0ece0; border-color: #ded6bd; color: #7d6a2e; }
 
   .card.pending .go { color: var(--ink-faint); }
 
   /* ---------- citation ---------- */
 
   .cite {
-    padding: 22px 24px;
+    padding: 20px 22px;
+    border: 1px solid var(--line);
     border-left: 3px solid var(--accent);
     background: var(--paper-warm);
-    border-radius: 0 12px 12px 0;
     font-size: .95rem;
     color: var(--ink-soft);
     max-width: 78ch;
@@ -302,7 +275,7 @@
   @media (max-width: 640px) {
     header.hero { padding: 56px 0 46px; }
     section { padding: 52px 0; }
-    .section-head { flex-direction: column; gap: 4px; }
+    .abstract { text-align: left; }
   }
 </style>
 </head>
@@ -310,7 +283,7 @@
 
 <header class="hero">
   <div class="wrap hero-inner">
-    <p class="eyebrow"><span class="dot"></span>HKCA &middot; Human Cell Atlas</p>
+    <p class="eyebrow">HKCA &middot; Human Cell Atlas</p>
     <h1>Human Kidney Cell Atlas</h1>
     <p class="tagline">
       A uniformly processed, computationally integrated single-cell and single-nucleus reference of the
@@ -343,7 +316,6 @@
     <div class="wrap">
       <div class="section-head">
         <h2>Abstract</h2>
-        <span class="section-note">from the accompanying manuscript</span>
       </div>
       <div class="abstract">
         <p>
@@ -386,8 +358,7 @@
   <section id="resources">
     <div class="wrap">
       <div class="section-head">
-        <h2>Data &amp; interactive views</h2>
-        <span class="section-note">download links are placeholders until deposition is final</span>
+        <h2>Data &amp; Interactive views</h2>
       </div>
 
       <!--
