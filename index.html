@@ -246,6 +246,16 @@
 
   .card.pending .go { color: var(--ink-faint); }
 
+  .lede {
+    font-size: 1.02rem;
+    line-height: 1.7;
+    color: #26332f;
+    max-width: 76ch;
+    margin: 0 0 22px;
+  }
+
+  .cards.single { grid-template-columns: minmax(0, 460px); }
+
   /* ---------- inline 3D UMAP viewer ---------- */
 
   .viewer {
@@ -555,6 +565,36 @@
           <p class="viewer-status" id="viewer-status" role="status"></p>
           <iframe id="viewer-frame" title="Interactive 3D UMAP" allowfullscreen></iframe>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="software">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Analysis toolkit</h2>
+      </div>
+
+      <p class="lede">
+        The atlas was assembled with <strong>ScanpyPlus</strong>, the Peng He Lab&rsquo;s open-source
+        extension of Scanpy for single-cell and spatial data &mdash; including DeepTree feature
+        selection, doublet-cluster detection, label transfer and the 3D UMAP export used above.
+      </p>
+
+      <div class="cards single">
+        <a class="card" href="https://github.com/Peng-He-Lab/ScanpyPlus" target="_blank" rel="noopener">
+          <div class="card-top">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8.5 9 5 12.5 8.5 16M15.5 9 19 12.5 15.5 16M13.5 7l-3 11"/>
+              </svg>
+            </span>
+            <span class="badge live">Open source</span>
+          </div>
+          <h3>ScanpyPlus</h3>
+          <p>Python module and example notebooks for the analyses behind this atlas.</p>
+          <span class="go">View on GitHub</span>
+        </a>
       </div>
     </div>
   </section>
